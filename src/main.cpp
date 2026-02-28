@@ -39,6 +39,17 @@ struct SortResult {
     long long selComparisons;
 };
 
+struct task2_scatterPlotNode {
+
+    // string caseName; //decreaseByOne, decreaseByConstantFactor, divideAndConquer
+    int n; // value on n in a^n
+    long long numMultDecreaseByOne;
+    long long numMultDecreaseByConstantFactor;
+    long long numMultDivideAndConquer;
+
+
+};
+
 string makeFilename(int n, string s, bool dir) {
     // caseTag should be: "" , "_sorted", or "_rSorted"
 
@@ -166,7 +177,7 @@ vector<SortResult> task3(const int step, int userMode) {
     }
 
     // loop to end of files in testSet.
-    for (int i = 0; i <= 10000; i+=step) {
+    for (int i = step; i <= 10000; i+=step) {
 
 // ===========================================
         // Best case: dataI_sorted.txt
@@ -248,7 +259,7 @@ vector<SortResult> task3(const int step, int userMode) {
 
 }
 
-void task2(int userMode) {
+vector<task2_scatterPlotNode> task2(int userMode) {
 
     Exponentiation exp;
 
@@ -258,7 +269,7 @@ void task2(int userMode) {
 
         int a, n;
 
-        bool aVal = false, bVal = false;
+        bool aVal = false;
 
         string input;
         int number = 0;
@@ -282,13 +293,20 @@ void task2(int userMode) {
                 }
             }
 
-            cout << "Please enter an integer for \"n\": ";
+            cout << "Please enter an integer for \"n\" ..." << endl;
+            cout << "The value of \"n\" must be 30 or below to prevent overflow: ";
             cin >> input;
 
             try {
                 number = stoi(input);
 
                 n = number;
+
+                if (n < 0) { cout << "n must be >= 0\n"; continue; }
+                if (n >= 30) { cout << "n must be less than 30\n"; continue; }
+
+
+
                 break;
             }
             catch (...) {
@@ -316,10 +334,27 @@ void task2(int userMode) {
         cout << "decreaseByOne: " << db1Results << endl << "decreaseByConstantFactor: " << dbcfResults << endl
             << "divideAndConquer: " << dacResults << endl;
 
+        return {};
+
     }
 
+    int a = 2;
 
+    vector<task2_scatterPlotNode> results;
 
+    for (int i = 1; i <= 1024; i*=2) {
+
+        long long mCount1 = 0, mCount2 = 0, mCount3 = 0;
+
+        exp.decreaseByOne(a, i, mCount1);
+        exp.divideAndConquer(a, i, mCount2);
+        exp.decreaseByConstantFactor(a, i, mCount3);
+
+        //
+        results.push_back({i, mCount1, mCount2, mCount3});
+
+    }
+    return results;
 }
 
 void task1(int mode) {
@@ -382,8 +417,19 @@ int main() {
 
     //======================
     task1(mode);
-    task2(mode);
-    vector<SortResult> task3Results = task3(200, mode);
+    vector<task2_scatterPlotNode> task2Results = task2(mode);
+    vector<SortResult> task3Results = task3(500, mode);
+
+
+
+    for (const auto& node : task2Results) {
+        cout << node.n << " "
+             << node.numMultDecreaseByOne << " "
+             << node.numMultDecreaseByConstantFactor << " "
+             << node.numMultDivideAndConquer
+             << endl;
+    }
+
 
 
     for (size_t i = 0; i < task3Results.size(); i++) {
@@ -392,6 +438,7 @@ int main() {
                   << task3Results[i].insComparisons << " "
                   << task3Results[i].selComparisons << endl;
     }
+
 
     return 0;
 }
