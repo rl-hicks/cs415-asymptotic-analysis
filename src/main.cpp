@@ -16,7 +16,7 @@ using namespace std;
 // ==================================
 static void write_d3_csv_task1a(const std::string& filename,
                                 const std::vector<std::pair<int, std::int64_t>>& data) {
-    std::ofstream out(filename);
+    std::ofstream out("results/" + filename);
     out << "impl,N,elapsed_ms,ops_total\n";
     for (const auto& [k, ops] : data) {
         out << "fib_recursive," << k << ",0," << ops << "\n";
@@ -25,7 +25,7 @@ static void write_d3_csv_task1a(const std::string& filename,
 
 static void write_d3_csv_task1b(const std::string& filename,
                                 const std::vector<std::pair<std::int64_t, std::int64_t>>& data) {
-    std::ofstream out(filename);
+    std::ofstream out("results/" + filename);
     out << "impl,N,elapsed_ms,ops_total\n";
     for (const auto& [n, ops] : data) {
         out << "euclid_worst," << n << ",0," << ops << "\n";
@@ -122,7 +122,7 @@ void writeTask3CSV(const std::vector<task3Result>& results) {
 
 
 
-string makeFilename(int n, string s, bool dir) {
+string makeFilename(int n, const string& s, bool dir) {
     // caseTag should be: "" , "_sorted", or "_rSorted"
 
 
@@ -339,7 +339,7 @@ vector<task2Result> task2(int userMode) {
 
         cout << "We are calculating a^n." << endl;
 
-        int a, n;
+        int a = 0, n;
 
         bool aVal = false;
 
@@ -461,12 +461,12 @@ void task1(int mode) {
         auto t1a = task1a_scatter_data(kMin, kMax);
         auto t1b = task1b_scatter_data(kMin, kMax);
 
-        write_d3_csv_task1a("task1a_fib.csv", t1a);
-        write_d3_csv_task1b("task1b_gcd.csv", t1b);
+        write_d3_csv_task1a("task1_fib.csv", t1a);
+        write_d3_csv_task1b("task1_gcd.csv", t1b);
 
         cout << "Generated:\n";
-        cout << "  task1a_fib.csv (k vs A(k))\n";
-        cout << "  task1b_gcd.csv (n=Fib(k) vs D(n))\n";
+        cout << "  task1_fib.csv (k vs A(k))\n";
+        cout << "  task1_gcd.csv (n=Fib(k) vs D(n))\n";
         cout << "Now open your provided D3 HTML and load these CSV files.\n";
     }
 
