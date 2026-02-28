@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include "task1.h"
 
@@ -31,24 +32,95 @@ static void write_d3_csv_task1b(const std::string& filename,
     }
 }
 
-
-struct SortResult {
+struct task3Result {
     string caseName; // "best","average","worst"
     int n;
     long long insComparisons;
     long long selComparisons;
 };
 
-struct task2_scatterPlotNode {
+struct task2Result {
 
-    // string caseName; //decreaseByOne, decreaseByConstantFactor, divideAndConquer
+    string caseName; // "decreaseByOne", "decreaseByConstantFactor", "divideAndConquer"
     int n; // value on n in a^n
-    long long numMultDecreaseByOne;
-    long long numMultDecreaseByConstantFactor;
-    long long numMultDivideAndConquer;
+    long long numberOfMultiplications;
 
 
 };
+
+
+void writeTask2CSV(const vector<task2Result>& results) {
+
+    std::filesystem::create_directories("results");
+
+    ofstream file("results/task2_exp.csv");
+
+    if (!file) {
+        cerr << "Error: Could not open results/task2_exp.csv\n";
+        return;
+    }
+
+    file << "impl,N,elapsed_ms,ops_total\n";
+
+    for (const auto& row : results) {
+        file << row.caseName << ","
+             << row.n << ","
+             << 0 << ","   // elapsed_ms (not used)
+             << row.numberOfMultiplications
+             << "\n";
+    }
+
+    file.close();
+
+}
+
+
+void writeTask3CSV(const std::vector<task3Result>& results) {
+
+    std::filesystem::create_directories("results");
+
+    std::ofstream bestFile("results/task3_best.csv");
+    std::ofstream avgFile("results/task3_average.csv");
+    std::ofstream worstFile("results/task3_worst.csv");
+
+    if (!bestFile || !avgFile || !worstFile) {
+        std::cerr << "Error opening task3 CSV files.\n";
+        return;
+    }
+
+    // Write headers
+    bestFile  << "impl,N,elapsed_ms,ops_total\n";
+    avgFile   << "impl,N,elapsed_ms,ops_total\n";
+    worstFile << "impl,N,elapsed_ms,ops_total\n";
+
+    for (const auto& r : results) {
+
+        std::ofstream* target = nullptr;
+
+        if (r.caseName == "best")
+            target = &bestFile;
+        else if (r.caseName == "average")
+            target = &avgFile;
+        else if (r.caseName == "worst")
+            target = &worstFile;
+        else
+            continue;
+
+        // insertion row
+        (*target) << "insertion,"
+                  << r.n << ",0,"
+                  << r.insComparisons << "\n";
+
+        // selection row
+        (*target) << "selection,"
+                  << r.n << ",0,"
+                  << r.selComparisons << "\n";
+    }
+
+
+}
+
+
 
 string makeFilename(int n, string s, bool dir) {
     // caseTag should be: "" , "_sorted", or "_rSorted"
@@ -76,13 +148,13 @@ vector<int> loadData(const string& filename) {
     return data;
 }
 
-vector<SortResult> task3(const int step, int userMode) {
+vector<task3Result> task3(const int step, int userMode) {
 
     // instantiate class
     SortingAlgorithms sorter;
 
     // Vector of type SortResult struct
-    vector<SortResult> results;
+    vector<task3Result> results;
 
 
     if (userMode == 1) {
@@ -259,7 +331,7 @@ vector<SortResult> task3(const int step, int userMode) {
 
 }
 
-vector<task2_scatterPlotNode> task2(int userMode) {
+vector<task2Result> task2(int userMode) {
 
     Exponentiation exp;
 
@@ -340,18 +412,20 @@ vector<task2_scatterPlotNode> task2(int userMode) {
 
     int a = 2;
 
-    vector<task2_scatterPlotNode> results;
+    vector<task2Result> results;
 
     for (int i = 1; i <= 1024; i*=2) {
 
         long long mCount1 = 0, mCount2 = 0, mCount3 = 0;
 
         exp.decreaseByOne(a, i, mCount1);
-        exp.divideAndConquer(a, i, mCount2);
-        exp.decreaseByConstantFactor(a, i, mCount3);
+        results.push_back({"decreaseByOne", i, mCount1});
 
-        //
-        results.push_back({i, mCount1, mCount2, mCount3});
+        exp.divideAndConquer(a, i, mCount2);
+        results.push_back({"divideAndConquer",i, mCount2});
+
+        exp.decreaseByConstantFactor(a, i, mCount3);
+        results.push_back({"decreaseByConstantFactor",i, mCount3});
 
     }
     return results;
@@ -417,26 +491,19 @@ int main() {
 
     //======================
     task1(mode);
-    vector<task2_scatterPlotNode> task2Results = task2(mode);
-    vector<SortResult> task3Results = task3(500, mode);
+    vector<task2Result> task2Results = task2(mode);
+    vector<task3Result> task3Results = task3(500, mode);
 
 
 
-    for (const auto& node : task2Results) {
-        cout << node.n << " "
-             << node.numMultDecreaseByOne << " "
-             << node.numMultDecreaseByConstantFactor << " "
-             << node.numMultDivideAndConquer
-             << endl;
-    }
+    if (mode == 2) {  // scatter plot mode
+        writeTask3CSV(task3Results);
+        cout << "created results/task2_exp.csv" << endl;
+        writeTask2CSV(task2Results);
 
-
-
-    for (size_t i = 0; i < task3Results.size(); i++) {
-        cout << task3Results[i].caseName << " "
-                  << task3Results[i].n << " "
-                  << task3Results[i].insComparisons << " "
-                  << task3Results[i].selComparisons << endl;
+        cout << "created results/task3_average.csv" << endl;
+        cout << "created results/task3_best.csv" << endl;
+        cout << "created results/task3_worst.csv" << endl;
     }
 
 
