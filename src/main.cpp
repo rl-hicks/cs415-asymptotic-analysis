@@ -148,6 +148,10 @@ vector<int> loadData(const string& filename) {
     return data;
 }
 
+static void printVec(const vector<int>& v) {
+    for (int x : v) cout << x << "\n";   // or space-separated if your spec wants that
+}
+
 vector<task3Result> task3(const int step, int userMode) {
 
     // instantiate class
@@ -163,7 +167,7 @@ vector<task3Result> task3(const int step, int userMode) {
 
 
         while (true) {
-            cout << "Please enter a number 1 - 100: ";
+            cout << "Please enter a number 10, 20, ..., 100: ";
             cin >> input;
 
             try {
@@ -181,70 +185,33 @@ vector<task3Result> task3(const int step, int userMode) {
         }
 
         // best
-        string sortedFile  = makeFilename(number, "_sorted", false);
-        vector<int> sortedData = loadData(sortedFile);
-        if (sortedFile.empty()) {
+        string fileName  = makeFilename(number, "", false);
+        vector<int> fileData = loadData(fileName);
+        if (fileName.empty()) {
             cerr << "ERROR: One or more files failed to load for n=" << number << "\n";
             return {};
         }
 
-        // average
-        string randomFile = makeFilename(number, "", false);
-        vector<int> randomData = loadData(randomFile);
+        vector<int> insVec = fileData;
+        vector<int> selVec = fileData;
 
-        // worst
-        string reverseSortedfile = makeFilename(number, "_rSorted", false);
-        vector<int> reverseData = loadData(reverseSortedfile);
+        long long insComp = 0;
+        long long selComp = 0;
 
+        sorter.insertSort(insVec.data(), static_cast<int>(insVec.size()), insComp);
+        sorter.selectionSort(selVec.data(), static_cast<int>(selVec.size()), selComp);
 
-        vector<int> bestInsVec = sortedData;
-        vector<int> bestSelVec = sortedData;
+        cout << "Insertion Sort: \n";
+        for (int x : insVec)
+            cout << x << "\n";
 
-        vector<int> avgInsVec = randomData;
-        vector<int> avgSelVec = randomData;
+        cout << "\n" << endl;
+        cout << "Selection Sort: \n";
+        for (int x : selVec)
+            cout << x << "\n";
 
-        vector<int> worstInsVec = reverseData;
-        vector<int> worstSelVec = reverseData;
-
-
-        long long  bestInsComp = 0, bestSelComp = 0;
-        long long  avgInsComp = 0, avgSelComp = 0;
-        long long  worstInsComp = 0, worstSelComp = 0;
-
-        // ============================
-        // Best
-
-        // Insertion Sort
-        sorter.insertSort(bestInsVec.data(), static_cast<int>(bestInsVec.size()), bestInsComp);
-
-        //Selection Sort
-        sorter.selectionSort(bestSelVec.data(), static_cast<int>(bestSelVec.size()), bestSelComp);
-
-        results.push_back({"best", number, bestInsComp, bestSelComp});
-
-        //=============================
-        // Average
-
-        // Insertion Sort
-        sorter.insertSort(avgInsVec.data(), static_cast<int>(avgInsVec.size()), avgInsComp);
-
-        //Selection Sort
-        sorter.selectionSort(avgSelVec.data(), static_cast<int>(avgSelVec.size()), avgSelComp);
-
-        results.push_back({"average", number, avgInsComp, avgSelComp});
-
-        //=============================
-        // Worst
-
-        // Insertion Sort
-        sorter.insertSort(worstInsVec.data(), static_cast<int>(worstInsVec.size()), worstInsComp);
-
-        //Selection Sort
-        sorter.selectionSort(worstSelVec.data(), static_cast<int>(worstSelVec.size()), worstSelComp);
-
-        results.push_back({"worst", number, worstInsComp, worstSelComp});
-
-        return results;
+        cout << "\n" << endl;
+        return {};
 
     }
 
@@ -327,6 +294,9 @@ vector<task3Result> task3(const int step, int userMode) {
 
         }
     }
+
+
+
     return results;
 
 }
@@ -414,7 +384,7 @@ vector<task2Result> task2(int userMode) {
 
     vector<task2Result> results;
 
-    for (int i = 1; i <= 1024; i*=2) {
+    for (int i = 1; i <= 16384; i*=2) {
 
         long long mCount1 = 0, mCount2 = 0, mCount3 = 0;
 
