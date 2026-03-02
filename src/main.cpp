@@ -16,6 +16,8 @@ using namespace std;
 // ==================================
 static void write_d3_csv_task1a(const std::string& filename,
                                 const std::vector<std::pair<int, std::int64_t>>& data) {
+    std::filesystem::create_directories("results");
+
     std::ofstream out("results/" + filename);
     out << "impl,N,elapsed_ms,ops_total\n";
     for (const auto& [k, ops] : data) {
@@ -25,6 +27,7 @@ static void write_d3_csv_task1a(const std::string& filename,
 
 static void write_d3_csv_task1b(const std::string& filename,
                                 const std::vector<std::pair<std::int64_t, std::int64_t>>& data) {
+    std::filesystem::create_directories("results");
     std::ofstream out("results/" + filename);
     out << "impl,N,elapsed_ms,ops_total\n";
     for (const auto& [n, ops] : data) {
